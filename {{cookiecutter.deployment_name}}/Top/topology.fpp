@@ -75,7 +75,7 @@ module {{cookiecutter.deployment_name}} {
       eventLogger.PktSend -> framer.comIn
 
       framer.framedAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.framer]
-      framer.framedOut -> commDriver.send
+      framer.framedOut -> commDriver.$send
 
       commDriver.deallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.framer]
 
