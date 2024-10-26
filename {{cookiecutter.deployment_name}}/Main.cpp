@@ -6,18 +6,12 @@
 // Used to access topology functions
 #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
 #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}Topology.hpp>
-// Used for Task Runner
-#include <Os/Baremetal/TaskRunner/TaskRunner.hpp>
 
-// Used for logging
-#include <Os/Log.hpp>
-#include <Arduino/Os/StreamLog.hpp>
-
-// Instantiate a system logger that will handle Fw::Logger::logMsg calls
-Os::Log logger;
+#include <Os/Console.hpp>
+#include <Arduino/Os/Task.hpp>
 
 // Task Runner
-Os::TaskRunner taskrunner;
+Os::Arduino::Task::TaskRunner taskrunner;
 
 /**
  * \brief setup the program
@@ -25,12 +19,13 @@ Os::TaskRunner taskrunner;
  * This is an extraction of the Arduino setup() function.
  * 
  */
-void setup()
-{
+void setup() {
+    // Initialize OSAL
+    Os::init();
+
     // Setup Serial
     Serial.begin(115200);
-    Os::setArduinoStreamLogHandler(&Serial);
-    delay(1000);
+    Os::Task::delay(Fw::TimeInterval(1, 0));
     Fw::Logger::logMsg("Program Started\n");
 
     // Object for communicating state to the reference topology
@@ -48,8 +43,7 @@ void setup()
  * This is an extraction of the Arduino loop() function.
  * 
  */
-void loop()
-{
+void loop() {
 #ifdef USE_BASIC_TIMER
     rateDriver.cycle();
 #endif
