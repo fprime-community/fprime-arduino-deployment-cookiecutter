@@ -1,17 +1,17 @@
 // ======================================================================
 // \title  Main.cpp
-// \brief main program for the F' application. Intended for CLI-based systems (Linux, macOS)
+// \brief main program for the F' application. Intended for Arduino-based systems
 //
 // ======================================================================
 // Used to access topology functions
 #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
 #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}Topology.hpp>
 
-#include <Os/Console.hpp>
-#include <Arduino/Os/Task.hpp>
+// Used for Baremetal TaskRunner
+#include <fprime-baremetal/Os/TaskRunner/TaskRunner.hpp>
 
-// Task Runner
-Os::Arduino::Task::TaskRunner taskrunner;
+// Used for logging
+#include <Arduino/Os/Console.hpp>
 
 /**
  * \brief setup the program
@@ -23,10 +23,9 @@ void setup() {
     // Initialize OSAL
     Os::init();
 
-    // Setup Serial
+    // Setup Serial and Logging
     Serial.begin(115200);
-    Os::Task::delay(Fw::TimeInterval(1, 0));
-    Fw::Logger::logMsg("Program Started\n");
+    static_cast<Os::Arduino::Console::ArduinoConsoleHandle*>(Os::Console::getSingleton().getHandle())->setOutputStream(&Serial);
 
     // Object for communicating state to the reference topology
     {{cookiecutter.deployment_name}}::TopologyState inputs;
@@ -35,6 +34,8 @@ void setup() {
 
     // Setup topology
     {{cookiecutter.deployment_name}}::setupTopology(inputs);
+
+    Fw::Logger::log("Program Started\n");
 }
 
 /**
@@ -47,5 +48,5 @@ void loop() {
 #ifdef USE_BASIC_TIMER
     rateDriver.cycle();
 #endif
-    taskrunner.run();
+    Os::Baremetal::TaskRunner::getSingleton().run();
 }
