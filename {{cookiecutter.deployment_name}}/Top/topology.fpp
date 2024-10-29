@@ -24,7 +24,6 @@ module {{cookiecutter.deployment_name}} {
     instance commDriver
     instance deframer
     instance eventLogger
-    instance fatalAdapter
     instance fatalHandler
     instance framer
     instance rateDriver
