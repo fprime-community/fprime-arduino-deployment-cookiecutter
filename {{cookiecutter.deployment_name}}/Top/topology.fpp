@@ -8,18 +8,13 @@ module {{cookiecutter.deployment_name}} {
       rateGroup1
     }
 
-    enum Ports_StaticMemory {
-      framer
-      deframer
-      deframing
-    }
-
   topology {{cookiecutter.deployment_name}} {
 
     # ----------------------------------------------------------------------
     # Instances used in the topology
     # ----------------------------------------------------------------------
 
+    instance bufferManager
     instance cmdDisp
     instance commDriver
     instance deframer
@@ -29,7 +24,6 @@ module {{cookiecutter.deployment_name}} {
     instance rateDriver
     instance rateGroup1
     instance rateGroupDriver
-    instance staticMemory
     instance systemResources
     instance textLogger
     instance timeHandler
@@ -73,24 +67,24 @@ module {{cookiecutter.deployment_name}} {
       tlmSend.PktSend -> framer.comIn
       eventLogger.PktSend -> framer.comIn
 
-      framer.framedAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.framer]
+      framer.framedAllocate -> bufferManager.bufferGetCallee
       framer.framedOut -> commDriver.$send
 
-      commDriver.deallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.framer]
+      commDriver.deallocate -> bufferManager.bufferSendIn
 
     }
     
     connections Uplink {
 
-      commDriver.allocate -> staticMemory.bufferAllocate[Ports_StaticMemory.deframer]
+      commDriver.allocate -> bufferManager.bufferGetCallee
       commDriver.$recv -> deframer.framedIn
-      deframer.framedDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.deframer]
+      deframer.framedDeallocate -> bufferManager.bufferSendIn
 
       deframer.comOut -> cmdDisp.seqCmdBuff
       cmdDisp.seqCmdStatus -> deframer.cmdResponseIn
 
-      deframer.bufferAllocate -> staticMemory.bufferAllocate[Ports_StaticMemory.deframing]
-      deframer.bufferDeallocate -> staticMemory.bufferDeallocate[Ports_StaticMemory.deframing]
+      deframer.bufferAllocate -> bufferManager.bufferGetCallee
+      deframer.bufferDeallocate -> bufferManager.bufferSendIn
       
     }
 
