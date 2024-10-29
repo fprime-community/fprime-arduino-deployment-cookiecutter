@@ -46,7 +46,7 @@ module {{cookiecutter.deployment_name}} {
 
   instance fatalHandler: Svc.FatalHandler base id 0x4300
 
-  instance timeHandler: Arduino.ArduinoTime base id 0x4400 \
+  instance timeHandler: Arduino.ArduinoTime base id 0x4400
 
   instance rateGroupDriver: Svc.RateGroupDriver base id 0x4500
 

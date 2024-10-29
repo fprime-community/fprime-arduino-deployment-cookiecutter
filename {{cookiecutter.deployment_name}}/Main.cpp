@@ -25,7 +25,7 @@ void setup() {
 
     // Setup Serial and Logging
     Serial.begin(115200);
-    static_cast<Os::Arduino::Console::ArduinoConsoleHandle*>(Os::Console::getSingleton().getHandle())->setOutputStream(&Serial);
+    static_cast<Os::Arduino::StreamConsoleHandle*>(Os::Console::getSingleton().getHandle())->setStreamHandler(Serial);
 
     // Object for communicating state to the reference topology
     {{cookiecutter.deployment_name}}::TopologyState inputs;
