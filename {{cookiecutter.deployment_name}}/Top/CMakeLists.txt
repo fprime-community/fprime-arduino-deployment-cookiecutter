@@ -13,9 +13,8 @@ set(SOURCE_FILES
 )
 set(MOD_DEPS
   Fw/Logger
-  Arduino/ArduinoTime
   Arduino/Drv/StreamDriver
-  Os/Baremetal/TaskRunner
+  fprime-baremetal/Os/TaskRunner
 )
 
 register_fprime_module()
