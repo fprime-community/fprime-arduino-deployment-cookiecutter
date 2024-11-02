@@ -36,9 +36,9 @@ module {{cookiecutter.deployment_name}} {
   # Passive component instances
   # ----------------------------------------------------------------------
 
-  instance rateGroup1: Svc.PassiveRateGroup base id 0x0200
+  instance rateGroup1: Svc.PassiveRateGroup base id 0x1000
 
-  instance bufferManager: Svc.BufferManager base id 0x1000
+  instance bufferManager: Svc.BufferManager base id 0x2000
 
   instance commDriver: Arduino.StreamDriver base id 0x4000
 

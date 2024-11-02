@@ -7,6 +7,14 @@
         <channel name="rateGroup1.MaxCycleTime"/>
         <channel name="rateGroup1.CycleTime"/>
         <channel name="rateGroup1.CycleCount"/>
+        <channel name="bufferManager.TotalBuffs"/>
+        <channel name="bufferManager.CurrBuffs"/>
+        <channel name="bufferManager.HiBuffs"/>
+    </packet>
+
+    <packet name="CDHErrors" id="2" level="1">
+        <channel name="bufferManager.NoBuffs"/>
+        <channel name="bufferManager.EmptyBuffs"/>
     </packet>
 
     <packet name="SystemRes1" id="5" level="2">
