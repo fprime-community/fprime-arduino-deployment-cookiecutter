@@ -10,6 +10,8 @@
         <channel name="bufferManager.TotalBuffs"/>
         <channel name="bufferManager.CurrBuffs"/>
         <channel name="bufferManager.HiBuffs"/>
+        <!-- Uncomment to use Svc::TlmPacketizer -->
+        <!-- <channel name="tlmSend.SendLevel"/> -->
     </packet>
 
     <packet name="CDHErrors" id="2" level="1">
