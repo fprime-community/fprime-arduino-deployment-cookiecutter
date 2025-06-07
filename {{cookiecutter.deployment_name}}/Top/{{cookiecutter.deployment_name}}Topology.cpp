@@ -92,7 +92,8 @@ void setupTopology(const TopologyState& state) {
     // Autocoded command registration. Function provided by autocoder.
     regCommands();
     // Autocoded parameter loading. Function provided by autocoder.
-    loadParameters();
+    // DISABLED FOR ARDUINO BOARDS. Loading parameters are not supported because there is typically no file system.
+    // loadParameters();
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
     
