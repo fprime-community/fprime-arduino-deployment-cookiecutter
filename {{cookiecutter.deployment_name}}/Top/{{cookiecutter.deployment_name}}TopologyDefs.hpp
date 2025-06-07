@@ -46,16 +46,16 @@ struct TopologyState {
  * ```
  */
 namespace PingEntries {
-namespace tlmSend {
+namespace {{cookiecutter.deployment_name}}_tlmSend {
 enum { WARN = 3, FATAL = 5 };
 }
-namespace cmdDisp {
+namespace {{cookiecutter.deployment_name}}_cmdDisp {
 enum { WARN = 3, FATAL = 5 };
 }
-namespace eventLogger {
+namespace {{cookiecutter.deployment_name}}_eventLogger {
 enum { WARN = 3, FATAL = 5 };
 }
-namespace rateGroup1 {
+namespace {{cookiecutter.deployment_name}}_rateGroup1 {
 enum { WARN = 3, FATAL = 5 };
 }
 }  // namespace PingEntries

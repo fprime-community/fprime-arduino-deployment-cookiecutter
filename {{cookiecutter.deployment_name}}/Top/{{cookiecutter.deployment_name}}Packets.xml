@@ -15,8 +15,14 @@
     </packet>
 
     <packet name="CDHErrors" id="2" level="1">
+        <channel name="rateGroup1.RgCycleSlips"/>
         <channel name="bufferManager.NoBuffs"/>
         <channel name="bufferManager.EmptyBuffs"/>
+    </packet>
+
+    <packet name="Comms" id="4" level="1">
+        <channel name="comQueue.comQueueDepth"/>
+        <channel name="comQueue.buffQueueDepth"/>
     </packet>
 
     <packet name="SystemRes1" id="5" level="2">
