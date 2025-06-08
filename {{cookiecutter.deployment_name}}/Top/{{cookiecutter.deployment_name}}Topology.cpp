@@ -111,7 +111,7 @@ void setupTopology(const TopologyState& state) {
         Fw::Logger::log("[commDriver] Failed to connect to network\n");
     }
 {%- elif cookiecutter.com_driver_type == "TcpClient" %}
-    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", "IP_ADDRESS" 50000);
+    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", "IP_ADDRESS", 50000);
     if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
         Fw::Logger::log("[commDriver] Failed to connect to network\n");
     }
