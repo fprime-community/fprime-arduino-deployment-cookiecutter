@@ -102,6 +102,7 @@ void setupTopology(const TopologyState& state) {
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
 
+
 {%- if cookiecutter.com_driver_type == "UART" %}
     commDriver.configure(&Serial);
 {%- elif cookiecutter.com_driver_type == "TcpServer" %}
