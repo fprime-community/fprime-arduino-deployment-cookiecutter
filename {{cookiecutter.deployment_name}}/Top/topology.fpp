@@ -57,9 +57,9 @@ module {{cookiecutter.deployment_name}} {
 
       # Rate group 1
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1.CycleIn
-      rateGroup1.RateGroupMemberOut[0] -> commDriver.schedIn
-      rateGroup1.RateGroupMemberOut[1] -> tlmSend.Run
-      rateGroup1.RateGroupMemberOut[2] -> systemResources.run
+      rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
+      rateGroup1.RateGroupMemberOut[1] -> systemResources.run
+      rateGroup1.RateGroupMemberOut[2] -> commDriver.schedIn
     }
 
     connections FaultProtection {
@@ -86,7 +86,7 @@ module {{cookiecutter.deployment_name}} {
       comStub.comStatusOut  -> framer.comStatusIn
 
       # ComStub <-> CommDriver
-      comStub.drvSendOut      -> commDriver.$send
+      comStub.drvSendOut       -> commDriver.$send
       commDriver.sendReturnOut -> comStub.drvSendReturnIn
       commDriver.ready         -> comStub.drvConnected
     }
@@ -97,7 +97,7 @@ module {{cookiecutter.deployment_name}} {
       commDriver.deallocate -> bufferManager.bufferSendIn
 
       # CommDriver <-> ComStub
-      commDriver.$recv             -> comStub.drvReceiveIn
+      commDriver.$recv            -> comStub.drvReceiveIn
       comStub.drvReceiveReturnOut -> commDriver.recvReturnIn
 
       # ComStub <-> FrameAccumulator

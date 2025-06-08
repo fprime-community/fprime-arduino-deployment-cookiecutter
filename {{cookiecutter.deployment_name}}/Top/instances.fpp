@@ -45,7 +45,11 @@ module {{cookiecutter.deployment_name}} {
 
   instance bufferManager: Svc.BufferManager base id 0x2000
 
+{%- if cookiecutter.com_driver_type == "UART" %}
   instance commDriver: Arduino.StreamDriver base id 0x4000
+{%- else %}
+  instance commDriver: Arduino.{{cookiecutter.com_driver_type}} base id 0x4000
+{%- endif %}
 
   instance framer: Svc.FprimeFramer base id 0x4100
 
