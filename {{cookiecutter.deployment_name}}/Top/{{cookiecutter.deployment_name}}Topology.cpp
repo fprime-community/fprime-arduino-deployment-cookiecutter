@@ -8,6 +8,7 @@
 // Note: Uncomment when using Svc:TlmPacketizer
 // #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}PacketsAc.hpp>
 #include <config/FppConstantsAc.hpp>
+#include <Fw/Logger/Logger.hpp>
 
 // Necessary project-specified types
 #include <config/FprimeArduino.hpp>
@@ -35,7 +36,11 @@ U32 rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::PassiveRateGroupO
 
 // A number of constants are needed for construction of the topology. These are specified here.
 enum TopologyConstants {
+{%- if cookiecutter.com_driver_type == "UART" %}
     COM_BUFFER_SIZE   = 140,
+{%- else %}
+    COM_BUFFER_SIZE   = 3000,
+{%- endif %}
     COM_BUFFER_COUNT  = 3,
     BUFFER_MANAGER_ID = 200,
 };
@@ -96,9 +101,23 @@ void setupTopology(const TopologyState& state) {
     // loadParameters();
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
+
+
+{%- if cookiecutter.com_driver_type == "UART" %}
+    commDriver.configure(&Serial);
+{%- elif cookiecutter.com_driver_type == "TcpServer" %}
+    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", 50000);
+    if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
+        Fw::Logger::log("[commDriver] Failed to connect to network\n");
+    }
+{%- elif cookiecutter.com_driver_type == "TcpClient" %}
+    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", "IP_ADDRESS", 50000);
+    if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
+        Fw::Logger::log("[commDriver] Failed to connect to network\n");
+    }
+{%- endif %}
     
     rateDriver.configure(1);
-    commDriver.configure(&Serial);
     rateDriver.start();
 }
 

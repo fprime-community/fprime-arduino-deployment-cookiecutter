@@ -1,21 +1,28 @@
 ####
-# F prime CMakeLists.txt:
+# F Prime CMakeLists.txt:
 #
-# SOURCE_FILES: combined list of source and autocoding files
-# MOD_DEPS: (optional) module dependencies
+# SOURCES: list of source files (to be compiled)
+# AUTOCODER_INPUTS: list of files to be passed to the autocoders
+# DEPENDS: list of libraries that this module depends on
+#
+# More information in the F´ CMake API documentation:
+# https://fprime.jpl.nasa.gov/latest/docs/reference/api/cmake/API/
+#
 ####
 
-set(SOURCE_FILES
-  "${CMAKE_CURRENT_LIST_DIR}/instances.fpp"
-  # Note: Uncomment when using Svc:TlmPacketizer
-  # "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.deployment_name}}Packets.xml"
-  "${CMAKE_CURRENT_LIST_DIR}/topology.fpp"
-  "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.deployment_name}}Topology.cpp"
+register_fprime_module(
+  AUTOCODER_INPUTS
+    "${CMAKE_CURRENT_LIST_DIR}/instances.fpp"
+    "${CMAKE_CURRENT_LIST_DIR}/topology.fpp"
+  SOURCES
+    "${CMAKE_CURRENT_LIST_DIR}/{{cookiecutter.deployment_name}}Topology.cpp"
+  DEPENDS
+{%- if cookiecutter.com_driver_type == "UART" %}
+    Arduino_Drv_StreamDriver
+{%- elif cookiecutter.com_driver_type == "TcpServer" %}
+    Arduino_Drv_TcpServer
+{%- elif cookiecutter.com_driver_type == "TcpClient" %}
+    Arduino_Drv_TcpClient
+{%- endif %}
+    fprime-baremetal_Os_TaskRunner
 )
-set(MOD_DEPS
-  Fw/Logger
-  Arduino/Drv/StreamDriver
-  fprime-baremetal/Os/TaskRunner
-)
-
-register_fprime_module()
