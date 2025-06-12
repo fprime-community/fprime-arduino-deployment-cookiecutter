@@ -46,7 +46,6 @@ module {{cookiecutter.deployment_name}} {
     command connections instance cmdDisp
 
     event connections instance eventLogger
-
 {% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
     param connections instance prmDb
 {%- endif %}

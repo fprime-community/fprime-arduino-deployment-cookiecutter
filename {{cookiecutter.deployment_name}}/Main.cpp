@@ -12,8 +12,7 @@
 
 // Used for logging
 #include <Arduino/Os/Console.hpp>
-
-{% if cookiecutter.file_system_type == "SD" %}
+{% if cookiecutter.file_system_type == "SD_Card" %}
 // Used for Os_File_Arduino_SD
 #include <SD.h>
 {%- endif %}
@@ -31,8 +30,7 @@ void setup() {
     // Setup Serial and Logging
     Serial.begin(115200);
     static_cast<Os::Arduino::StreamConsoleHandle*>(Os::Console::getSingleton().getHandle())->setStreamHandler(Serial);
-
-{% if cookiecutter.file_system_type == "SD" %}
+{% if cookiecutter.file_system_type == "SD_Card" %}
     SD.begin(BUILTIN_SDCARD);
 {%- endif %}
 

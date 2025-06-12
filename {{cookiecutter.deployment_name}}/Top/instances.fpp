@@ -32,8 +32,7 @@ module {{cookiecutter.deployment_name}} {
     queue size Default.QUEUE_SIZE \
     stack size Default.STACK_SIZE \
     priority 97
-
-{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+{% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
   instance fileDownlink: Svc.FileDownlink base id 0x0700 \
     queue size 30 \
     stack size Default.STACK_SIZE \
