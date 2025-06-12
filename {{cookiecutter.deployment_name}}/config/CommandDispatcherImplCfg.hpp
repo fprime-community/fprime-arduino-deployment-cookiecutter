@@ -10,10 +10,14 @@
 
 // Define configuration values for dispatcher
 
-enum {
+{{enum {}}
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+    CMD_DISPATCHER_DISPATCH_TABLE_SIZE = 23, // !< The size of the table holding opcodes to dispatch
+{%- else %}
     CMD_DISPATCHER_DISPATCH_TABLE_SIZE = 12, // !< The size of the table holding opcodes to dispatch
+{%- endif %}
     CMD_DISPATCHER_SEQUENCER_TABLE_SIZE = 4, // !< The size of the table holding commands in progress
-};
+{{};}}
 
 
 
