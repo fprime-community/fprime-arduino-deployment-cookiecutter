@@ -25,6 +25,12 @@ module {{cookiecutter.deployment_name}} {
     instance framer
     instance fprimeRouter
     instance frameAccumulator
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+    instance fileDownlink
+    instance fileManager
+    instance fileUplink
+    instance prmDb
+{%- endif %}
     instance rateDriver
     instance rateGroup1
     instance rateGroupDriver
@@ -40,6 +46,10 @@ module {{cookiecutter.deployment_name}} {
     command connections instance cmdDisp
 
     event connections instance eventLogger
+
+{% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+    param connections instance prmDb
+{%- endif %}
 
     telemetry connections instance tlmSend
 
@@ -60,6 +70,9 @@ module {{cookiecutter.deployment_name}} {
       rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
       rateGroup1.RateGroupMemberOut[1] -> systemResources.run
       rateGroup1.RateGroupMemberOut[2] -> commDriver.schedIn
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+      rateGroup1.RateGroupMemberOut[3] -> fileDownlink.Run
+{%- endif %}
     }
 
     connections FaultProtection {
@@ -70,6 +83,10 @@ module {{cookiecutter.deployment_name}} {
       # Inputs to ComQueue (events, telemetry, file)
       eventLogger.PktSend -> comQueue.comPacketQueueIn[0]
       tlmSend.PktSend     -> comQueue.comPacketQueueIn[1]
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+      fileDownlink.bufferSendOut  -> comQueue.bufferQueueIn[0]
+      comQueue.bufferReturnOut[0] -> fileDownlink.bufferReturn
+{%- endif %}
 
       # ComQueue <-> Framer
       comQueue.dataOut     -> framer.dataIn
@@ -120,9 +137,13 @@ module {{cookiecutter.deployment_name}} {
       fprimeRouter.bufferAllocate   -> bufferManager.bufferGetCallee
       fprimeRouter.bufferDeallocate -> bufferManager.bufferSendIn
 
-      # Router <-> CmdDispatcher
+      # Router <-> CmdDispatcher/FileUplink
       fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
       cmdDisp.seqCmdStatus     -> fprimeRouter.cmdResponseIn
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+      fprimeRouter.fileOut     -> fileUplink.bufferSendIn
+      fileUplink.bufferSendOut -> fprimeRouter.fileBufferReturnIn
+{%- endif %}
     }
 
     connections {{cookiecutter.deployment_name}} {

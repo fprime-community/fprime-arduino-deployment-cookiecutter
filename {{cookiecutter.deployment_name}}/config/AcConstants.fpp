@@ -13,7 +13,11 @@ constant PassiveRateGroupOutputPorts = 10
 constant RateGroupDriverRateGroupPorts = 3
 
 @ Used for command and registration ports
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+constant CmdDispatcherComponentCommandPorts = 8
+{%- else %}
 constant CmdDispatcherComponentCommandPorts = 5
+{%- endif %}
 
 @ Used for uplink/sequencer buffer/response ports
 constant CmdDispatcherSequencePorts = 1

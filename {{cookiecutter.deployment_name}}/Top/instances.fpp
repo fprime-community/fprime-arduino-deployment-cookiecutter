@@ -19,9 +19,9 @@ module {{cookiecutter.deployment_name}} {
     priority 101
 
   instance comQueue: Svc.ComQueue base id 0x0200 \
-      queue size Default.QUEUE_SIZE \
-      stack size Default.STACK_SIZE \
-      priority 100 \
+    queue size Default.QUEUE_SIZE \
+    stack size Default.STACK_SIZE \
+    priority 100 \
 
   instance eventLogger: Svc.ActiveLogger base id 0x0300 \
     queue size Default.QUEUE_SIZE \
@@ -32,6 +32,28 @@ module {{cookiecutter.deployment_name}} {
     queue size Default.QUEUE_SIZE \
     stack size Default.STACK_SIZE \
     priority 97
+
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+  instance fileDownlink: Svc.FileDownlink base id 0x0700 \
+    queue size 30 \
+    stack size Default.STACK_SIZE \
+    priority 100
+
+  instance fileManager: Svc.FileManager base id 0x0800 \
+    queue size 30 \
+    stack size Default.STACK_SIZE \
+    priority 100
+
+  instance fileUplink: Svc.FileUplink base id 0x0900 \
+    queue size 30 \
+    stack size Default.STACK_SIZE \
+    priority 100
+
+  instance prmDb: Svc.PrmDb base id 0x0D00 \
+    queue size Default.QUEUE_SIZE \
+    stack size Default.STACK_SIZE \
+    priority 62
+{%- endif %}
 
   # ----------------------------------------------------------------------
   # Queued component instances

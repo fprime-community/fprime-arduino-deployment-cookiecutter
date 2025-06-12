@@ -24,5 +24,8 @@ register_fprime_module(
 {%- elif cookiecutter.com_driver_type == "TcpClient" %}
     Arduino_Drv_TcpClient
 {%- endif %}
+{%- if cookiecutter.file_system_type == "MicroFS" %}
+    Os_Baremetal_MicroFs
+{%- endif %}
     fprime-baremetal_Os_TaskRunner
 )
