@@ -303,7 +303,11 @@ typedef enum {
 #endif
 
 #ifndef FW_FILE_HANDLE_MAX_SIZE
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+#define FW_FILE_HANDLE_MAX_SIZE 32  //!< Maximum size of a handle for OS queues
+{%- else %}
 #define FW_FILE_HANDLE_MAX_SIZE 16  //!< Maximum size of a handle for OS queues
+{%- endif %}
 #endif
 
 #ifndef FW_MUTEX_HANDLE_MAX_SIZE
@@ -315,7 +319,11 @@ typedef enum {
 #endif
 
 #ifndef FW_DIRECTORY_HANDLE_MAX_SIZE
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+#define FW_DIRECTORY_HANDLE_MAX_SIZE 48  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
+{%- else %}
 #define FW_DIRECTORY_HANDLE_MAX_SIZE 16  //!< Maximum size of a handle for OS resources (files, queues, locks, etc.)
+{%- endif %}
 #endif
 
 #ifndef FW_FILESYSTEM_HANDLE_MAX_SIZE
