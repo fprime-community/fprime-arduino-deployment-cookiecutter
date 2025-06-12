@@ -88,7 +88,7 @@ void configureTopology() {
     buffMgrBins.bins[1].bufferSize = COMMS_BUFFER_MANAGER_FILE_STORE_SIZE;
     buffMgrBins.bins[1].numBuffers = COMMS_BUFFER_MANAGER_FILE_QUEUE_SIZE;
 {%- endif %}
-    bufferManager.setup(BUFFER_MANAGER_ID, 0, mallocator, buffMgrBins);
+    bufferManager.setup(COMMS_BUFFER_MANAGER_ID, 0, mallocator, buffMgrBins);
 
     // FprimeFrameDetector is used to configure the FrameAccumulator to detect F Prime frames
     frameAccumulator.configure(frameDetector, 1, mallocator, 2048);
