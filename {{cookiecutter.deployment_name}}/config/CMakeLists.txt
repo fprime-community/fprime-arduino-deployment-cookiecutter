@@ -10,7 +10,7 @@ register_fprime_config(
 {%- if cookiecutter.file_system_type == "SD_Card" %}
     CHOOSES_IMPLEMENTATIONS
         Os_File_Arduino_SD
-{%- elif cookiecutter.com_driver_type == "MicroFS" %}
+{%- elif cookiecutter.file_system_type == "MicroFS" %}
     CHOOSES_IMPLEMENTATIONS
         Os_File_Baremetal_MicroFs
 {%- endif %}

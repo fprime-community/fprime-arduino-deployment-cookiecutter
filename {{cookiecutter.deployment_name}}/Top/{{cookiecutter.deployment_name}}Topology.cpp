@@ -14,6 +14,10 @@
 #include <config/FprimeArduino.hpp>
 #include <Fw/Types/MallocAllocator.hpp>
 #include <Svc/FrameAccumulator/FrameDetector/FprimeFrameDetector.hpp>
+{%- if cookiecutter.file_system_type == "MicroFS" %}
+// MicroFs
+#include <fprime-baremetal/Os/Baremetal/MicroFs/MicroFs.hpp>
+{%- endif %}
 
 // Allows easy reference to objects in FPP/autocoder required namespaces
 using namespace {{cookiecutter.deployment_name}};
