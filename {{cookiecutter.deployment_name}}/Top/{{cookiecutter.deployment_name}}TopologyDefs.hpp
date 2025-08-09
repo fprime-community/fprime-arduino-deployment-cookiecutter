@@ -8,23 +8,23 @@
 
 #include "Fw/Types/MallocAllocator.hpp"
 #include "{{cookiecutter.deployment_name}}/Top/FppConstantsAc.hpp"
-#include "Svc/FramingProtocol/FprimeProtocol.hpp"
 
-// Definitions are placed within a namespace named after the deployment
-namespace {{cookiecutter.deployment_name}} {
+// SubtopologyTopologyDefs includes
+{%- if cookiecutter.framing_selection == "CCSDS" %}
+#include "Svc/Subtopologies/ComCcsds/SubtopologyTopologyDefs.hpp"
+{%- else %}
+#include "Svc/Subtopologies/ComFprime/SubtopologyTopologyDefs.hpp"
+{%- endif %}
 
-/**
- * \brief required type definition to carry state
- *
- * The topology autocoder requires an object that carries state with the name `{{cookiecutter.deployment_name}}::TopologyState`. Only the type
- * definition is required by the autocoder and the contents of this object are otherwise opaque to the autocoder. The
- * contents are entirely up to the definition of the project. This reference application specifies hostname and port
- * fields, which are derived by command line inputs.
- */
-struct TopologyState {
-    FwIndexType uartNumber;
-    PlatformIntType uartBaud;
-};
+{%- if cookiecutter.framing_selection == "CCSDS" %}
+// ComCcsds Enum Includes
+#include "Svc/Subtopologies/ComCcsds/Ports_ComPacketQueueEnumAc.hpp"
+#include "Svc/Subtopologies/ComCcsds/Ports_ComBufferQueueEnumAc.hpp"
+{%- else %}
+// ComFprime Enum Includes
+#include "Svc/Subtopologies/ComFprime/Ports_ComPacketQueueEnumAc.hpp"
+#include "Svc/Subtopologies/ComFprime/Ports_ComBufferQueueEnumAc.hpp"
+{%- endif %}
 
 /**
  * \brief required ping constants
@@ -46,18 +46,30 @@ struct TopologyState {
  * ```
  */
 namespace PingEntries {
-namespace {{cookiecutter.deployment_name}}_tlmSend {
-enum { WARN = 3, FATAL = 5 };
-}
-namespace {{cookiecutter.deployment_name}}_cmdDisp {
-enum { WARN = 3, FATAL = 5 };
-}
-namespace {{cookiecutter.deployment_name}}_eventLogger {
-enum { WARN = 3, FATAL = 5 };
-}
-namespace {{cookiecutter.deployment_name}}_rateGroup1 {
-enum { WARN = 3, FATAL = 5 };
-}
+    namespace {{cookiecutter.deployment_name}}_tlmSend      {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_name}}_cmdDisp      {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_name}}_eventLogger  {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_name}}_rateGroup1   {enum { WARN = 3, FATAL = 5 };}
 }  // namespace PingEntries
+
+// Definitions are placed within a namespace named after the deployment
+namespace {{cookiecutter.deployment_name}} {
+
+    /**
+     * \brief required type definition to carry state
+     *
+     * The topology autocoder requires an object that carries state with the name `{{cookiecutter.deployment_name}}::TopologyState`. Only the type
+     * definition is required by the autocoder and the contents of this object are otherwise opaque to the autocoder. The
+     * contents are entirely up to the definition of the project. This reference application specifies hostname and port
+     * fields, which are derived by command line inputs.
+     */
+    struct TopologyState {
+        FwIndexType uartNumber;
+        PlatformIntType uartBaud;
+    };
+
 }  // namespace {{cookiecutter.deployment_name}}
+
+
+
 #endif

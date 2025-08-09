@@ -2,11 +2,13 @@
     "deployment_name": "fprime-arduino-deployment",
     "com_driver_type": ["UART", "TcpServer", "TcpClient"],
     "file_system_type": ["None", "SD_Card", "MicroFS"],
+    "framing_selection": ["CCSDS", "Fprime"],
     "__include_path_prefix": "",
     "__deployment_name_upper": "{{cookiecutter.deployment_name.upper()}}",
     "__prompts__": {
         "deployment_name": "Deployment name",
         "com_driver_type": "Select communication driver type",
-        "file_system_type": "Select file system type"
+        "file_system_type": "Select file system type",
+        "framing_selection": "Select framing protocol"
     }
 }

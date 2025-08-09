@@ -12,8 +12,6 @@
 
 // Necessary project-specified types
 #include <config/FprimeArduino.hpp>
-#include <Fw/Types/MallocAllocator.hpp>
-#include <Svc/FrameAccumulator/FrameDetector/FprimeFrameDetector.hpp>
 {%- if cookiecutter.file_system_type == "MicroFS" %}
 // MicroFs
 #include <fprime-baremetal/Os/Baremetal/MicroFs/MicroFs.hpp>
@@ -22,41 +20,12 @@
 // Allows easy reference to objects in FPP/autocoder required namespaces
 using namespace {{cookiecutter.deployment_name}};
 
-// The reference topology uses a malloc-based allocator for components that need to allocate memory during the
-// initialization phase.
-Fw::MallocAllocator mallocator;
-
-// FprimeFrameDetector is used to configure the FrameAccumulator to detect F Prime frames
-Svc::FrameDetectors::FprimeFrameDetector frameDetector;
-
-Svc::ComQueue::QueueConfigurationTable configurationTable;
-
 // The reference topology divides the incoming clock signal (1Hz) into sub-signals: 1/100Hz, 1/200Hz, and 1/1000Hz
 {{"Svc::RateGroupDriver::DividerSet rateGroupDivisors{{{100, 0}, {200, 0}, {1000, 0}}};"}}
 
 // Rate groups may supply a context token to each of the attached children whose purpose is set by the project. The
 // reference topology sets each token to zero as these contexts are unused in this project.
 U32 rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::PassiveRateGroupOutputPorts] = {};
-
-// A number of constants are needed for construction of the topology. These are specified here.
-{{"enum TopologyConstants {"}}
-{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
-    FILE_DOWNLINK_TIMEOUT = 1000,
-    FILE_DOWNLINK_COOLDOWN = 1000,
-    FILE_DOWNLINK_CYCLE_TIME = 1000,
-    FILE_DOWNLINK_FILE_QUEUE_DEPTH = 10,
-    // Buffer manager for Uplink/Downlink
-    COMMS_BUFFER_MANAGER_FILE_STORE_SIZE = 3000,
-    COMMS_BUFFER_MANAGER_FILE_QUEUE_SIZE = 30,
-{%- endif %}
-{%- if cookiecutter.com_driver_type == "UART" %}
-    COMMS_BUFFER_MANAGER_STORE_SIZE = 140,
-{%- else %}
-    COMMS_BUFFER_MANAGER_STORE_SIZE = 2048,
-{%- endif %}
-    COMMS_BUFFER_MANAGER_STORE_COUNT = 3,
-    COMMS_BUFFER_MANAGER_ID = 200,
-{{"};"}}
 
 /**
  * \brief configure/setup components in project-specific way
@@ -71,6 +40,7 @@ void configureTopology() {
 
     // Rate groups require context arrays.
     rateGroup1.configure(rateGroup1Context, FW_NUM_ARRAY_ELEMENTS(rateGroup1Context));
+
 {% if cookiecutter.file_system_type == "MicroFS" %}
     // Initialize the RAM File system
     Os::Baremetal::MicroFs::MicroFsConfig microFsCfg;
@@ -83,25 +53,13 @@ void configureTopology() {
     Os::Baremetal::MicroFs::MicroFsInit(microFsCfg, 0, mallocator);
 {%- endif %}
 
-    // Set up BufferManager
-    Svc::BufferManager::BufferBins buffMgrBins;
-    memset(&buffMgrBins, 0, sizeof(buffMgrBins));
-    buffMgrBins.bins[0].bufferSize = COMMS_BUFFER_MANAGER_STORE_SIZE;
-    buffMgrBins.bins[0].numBuffers = COMMS_BUFFER_MANAGER_STORE_COUNT;
-{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
-    buffMgrBins.bins[1].bufferSize = COMMS_BUFFER_MANAGER_FILE_STORE_SIZE;
-    buffMgrBins.bins[1].numBuffers = COMMS_BUFFER_MANAGER_FILE_QUEUE_SIZE;
-{%- endif %}
-    bufferManager.setup(COMMS_BUFFER_MANAGER_ID, 0, mallocator, buffMgrBins);
-
-    // FprimeFrameDetector is used to configure the FrameAccumulator to detect F Prime frames
-    frameAccumulator.configure(frameDetector, 1, mallocator, 2048);
 {% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
     // File downlink requires some project-derived properties.
     fileDownlink.configure(FILE_DOWNLINK_TIMEOUT, FILE_DOWNLINK_COOLDOWN, FILE_DOWNLINK_CYCLE_TIME,
                            FILE_DOWNLINK_FILE_QUEUE_DEPTH);
 {%- endif %}
-{%- if cookiecutter.file_system_type == "MicroFS" %}
+
+{% if cookiecutter.file_system_type == "MicroFS" %}
     // Parameter database is configured with a database file name, and that file must be initially read.
     prmDb.configure("/bin4/file1");
     prmDb.readParamFile();
@@ -110,18 +68,6 @@ void configureTopology() {
     prmDb.configure("prmDb.dat");
     prmDb.readParamFile();
 {%- endif %}
-
-    // Note: Uncomment when using Svc:TlmPacketizer
-    // tlmSend.setPacketList(LedBlinkerPacketsPkts, LedBlinkerPacketsIgnore, 1);
-
-    // Events (highest-priority)
-    configurationTable.entries[0] = {.depth = 10, .priority = 0};
-    // Telemetry
-    configurationTable.entries[1] = {.depth = 25, .priority = 2};
-    // File Downlink
-    configurationTable.entries[2] = {.depth = 1, .priority = 1};
-    // Allocation identifier is 0 as the MallocAllocator discards it
-    comQueue.configure(configurationTable, 0, mallocator);
 }
 
 // Public functions for use in main program are namespaced with deployment name {{cookiecutter.deployment_name}}

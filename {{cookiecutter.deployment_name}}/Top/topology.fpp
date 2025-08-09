@@ -11,20 +11,23 @@ module {{cookiecutter.deployment_name}} {
   topology {{cookiecutter.deployment_name}} {
 
     # ----------------------------------------------------------------------
+    # Subtopology imports
+    # ----------------------------------------------------------------------
+
+{% if cookiecutter.framing_selection == "CCSDS" %}
+    import ComCcsds.Subtopology
+{%- else %}
+    import ComFprime.Subtopology
+{%- endif %}
+
+    # ----------------------------------------------------------------------
     # Instances used in the topology
     # ----------------------------------------------------------------------
 
-    instance bufferManager
     instance cmdDisp
-    instance comQueue
-    instance comStub
-    instance commDriver
-    instance deframer
+    instance comDriver
     instance eventLogger
     instance fatalHandler
-    instance framer
-    instance fprimeRouter
-    instance frameAccumulator
 {%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
     instance fileDownlink
     instance fileManager
@@ -46,6 +49,7 @@ module {{cookiecutter.deployment_name}} {
     command connections instance cmdDisp
 
     event connections instance eventLogger
+
 {% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
     param connections instance prmDb
 {%- endif %}
@@ -68,7 +72,7 @@ module {{cookiecutter.deployment_name}} {
       rateGroupDriver.CycleOut[Ports_RateGroups.rateGroup1] -> rateGroup1.CycleIn
       rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
       rateGroup1.RateGroupMemberOut[1] -> systemResources.run
-      rateGroup1.RateGroupMemberOut[2] -> commDriver.schedIn
+      rateGroup1.RateGroupMemberOut[2] -> comDriver.schedIn
 {%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
       rateGroup1.RateGroupMemberOut[3] -> fileDownlink.Run
 {%- endif %}
@@ -78,72 +82,51 @@ module {{cookiecutter.deployment_name}} {
       eventLogger.FatalAnnounce -> fatalHandler.FatalReceive
     }
 
-    connections Downlink {
+{% if cookiecutter.framing_selection == "CCSDS" %}
+    connections Communications {
       # Inputs to ComQueue (events, telemetry, file)
-      eventLogger.PktSend -> comQueue.comPacketQueueIn[0]
-      tlmSend.PktSend     -> comQueue.comPacketQueueIn[1]
-{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
-      fileDownlink.bufferSendOut  -> comQueue.bufferQueueIn[0]
-      comQueue.bufferReturnOut[0] -> fileDownlink.bufferReturn
-{%- endif %}
+      eventLogger.PktSend -> ComCcsds.comQueue.comPacketQueueIn[ComCcsds.Ports_ComPacketQueue.EVENTS]
+      tlmSend.PktSend     -> ComCcsds.comQueue.comPacketQueueIn[ComCcsds.Ports_ComPacketQueue.TELEMETRY]
 
-      # ComQueue <-> Framer
-      comQueue.dataOut     -> framer.dataIn
-      framer.dataReturnOut -> comQueue.dataReturnIn
-      framer.comStatusOut  -> comQueue.comStatusIn
+      # ComDriver buffer allocations
+      comDriver.allocate      -> ComCcsds.commsBufferManager.bufferGetCallee
+      comDriver.deallocate    -> ComCcsds.commsBufferManager.bufferSendIn
+      
+      # ComDriver <-> ComStub (Uplink)
+      comDriver.$recv                     -> ComCcsds.comStub.drvReceiveIn
+      ComCcsds.comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
+      
+      # ComStub <-> ComDriver (Downlink)
+      ComCcsds.comStub.drvSendOut      -> comDriver.$send
+      comDriver.ready         -> ComCcsds.comStub.drvConnected
 
-      # Buffer Management for Framer
-      framer.bufferAllocate   -> bufferManager.bufferGetCallee
-      framer.bufferDeallocate -> bufferManager.bufferSendIn
-
-      # Framer <-> ComStub
-      framer.dataOut        -> comStub.dataIn
-      comStub.dataReturnOut -> framer.dataReturnIn
-      comStub.comStatusOut  -> framer.comStatusIn
-
-      # ComStub <-> CommDriver
-      comStub.drvSendOut       -> commDriver.$send
-      commDriver.sendReturnOut -> comStub.drvSendReturnIn
-      commDriver.ready         -> comStub.drvConnected
+      # Router <-> CmdDispatcher
+      ComCcsds.fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
+      cmdDisp.seqCmdStatus     -> ComCcsds.fprimeRouter.cmdResponseIn
     }
-    
-    connections Uplink {
-      # CommDriver buffer allocations
-      commDriver.allocate   -> bufferManager.bufferGetCallee
-      commDriver.deallocate -> bufferManager.bufferSendIn
+{%- else %}
+    connections Communications {
+      # Inputs to ComQueue (events, telemetry, file)
+      eventLogger.PktSend -> ComFprime.comQueue.comPacketQueueIn[ComFprime.Ports_ComPacketQueue.EVENTS]
+      tlmSend.PktSend     -> ComFprime.comQueue.comPacketQueueIn[ComFprime.Ports_ComPacketQueue.TELEMETRY]
 
-      # CommDriver <-> ComStub
-      commDriver.$recv            -> comStub.drvReceiveIn
-      comStub.drvReceiveReturnOut -> commDriver.recvReturnIn
+      # ComDriver buffer allocations
+      comDriver.allocate      -> ComFprime.commsBufferManager.bufferGetCallee
+      comDriver.deallocate    -> ComFprime.commsBufferManager.bufferSendIn
+      
+      # ComDriver <-> ComStub (Uplink)
+      comDriver.$recv                     -> ComFprime.comStub.drvReceiveIn
+      ComFprime.comStub.drvReceiveReturnOut -> comDriver.recvReturnIn
+      
+      # ComStub <-> ComDriver (Downlink)
+      ComFprime.comStub.drvSendOut      -> comDriver.$send
+      comDriver.ready         -> ComFprime.comStub.drvConnected
 
-      # ComStub <-> FrameAccumulator
-      comStub.dataOut                -> frameAccumulator.dataIn
-      frameAccumulator.dataReturnOut -> comStub.dataReturnIn
-
-      # FrameAccumulator buffer allocations
-      frameAccumulator.bufferDeallocate -> bufferManager.bufferSendIn
-      frameAccumulator.bufferAllocate   -> bufferManager.bufferGetCallee
-
-      # FrameAccumulator <-> Deframer
-      frameAccumulator.dataOut  -> deframer.dataIn
-      deframer.dataReturnOut    -> frameAccumulator.dataReturnIn
-
-      # Deframer <-> Router
-      deframer.dataOut           -> fprimeRouter.dataIn
-      fprimeRouter.dataReturnOut -> deframer.dataReturnIn
-
-      # Router buffer allocations
-      fprimeRouter.bufferAllocate   -> bufferManager.bufferGetCallee
-      fprimeRouter.bufferDeallocate -> bufferManager.bufferSendIn
-
-      # Router <-> CmdDispatcher/FileUplink
-      fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
-      cmdDisp.seqCmdStatus     -> fprimeRouter.cmdResponseIn
-{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
-      fprimeRouter.fileOut     -> fileUplink.bufferSendIn
-      fileUplink.bufferSendOut -> fprimeRouter.fileBufferReturnIn
-{%- endif %}
+      # Router <-> CmdDispatcher
+      ComFprime.fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
+      cmdDisp.seqCmdStatus     -> ComFprime.fprimeRouter.cmdResponseIn
     }
+{%- endif %}
 
     connections {{cookiecutter.deployment_name}} {
       # Add here connections to user-defined components
