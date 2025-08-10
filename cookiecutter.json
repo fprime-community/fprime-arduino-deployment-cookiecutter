@@ -1,5 +1,5 @@
 {
-    "deployment_name": "fprime-arduino-deployment",
+    "deployment_name": "fprime_arduino_deployment",
     "com_driver_type": ["UART", "TcpServer", "TcpClient"],
     "file_system_type": ["None", "SD_Card", "MicroFS"],
     "framing_selection": ["CCSDS", "Fprime"],
