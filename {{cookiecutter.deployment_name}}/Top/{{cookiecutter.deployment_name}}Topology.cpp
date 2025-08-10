@@ -71,7 +71,7 @@ void configureTopology() {
     // Parameter database is configured with a database file name, and that file must be initially read.
     prmDb.configure("prmDb.dat");
     prmDb.readParamFile();
-{%- endif -%}
+{%- endif %}
 }
 
 // Public functions for use in main program are namespaced with deployment name {{cookiecutter.deployment_name}}
