@@ -11,7 +11,7 @@
 #include <Fw/Logger/Logger.hpp>
 
 // Necessary project-specified types
-#include <config/FprimeArduino.hpp>
+#include <Arduino/config/FprimeArduino.hpp>
 {%- if cookiecutter.file_system_type == "MicroFS" %}
 // MicroFs
 #include <fprime-baremetal/Os/Baremetal/MicroFs/MicroFs.hpp>
@@ -41,7 +41,8 @@ void configureTopology() {
     // Rate groups require context arrays.
     rateGroup1.configure(rateGroup1Context, FW_NUM_ARRAY_ELEMENTS(rateGroup1Context));
 
-{% if cookiecutter.file_system_type == "MicroFS" %}
+{%- if cookiecutter.file_system_type == "MicroFS" %}
+
     // Initialize the RAM File system
     Os::Baremetal::MicroFs::MicroFsConfig microFsCfg;
     Os::Baremetal::MicroFs::MicroFsSetCfgBins(microFsCfg, 5);
@@ -51,23 +52,26 @@ void configureTopology() {
     Os::Baremetal::MicroFs::MicroFsAddBin(microFsCfg, 3, 10 * 1024, 5);
     Os::Baremetal::MicroFs::MicroFsAddBin(microFsCfg, 4, 10 * 1024, 5);
     Os::Baremetal::MicroFs::MicroFsInit(microFsCfg, 0, mallocator);
-{%- endif %}
+{%- endif -%}
 
-{% if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+
     // File downlink requires some project-derived properties.
     fileDownlink.configure(FILE_DOWNLINK_TIMEOUT, FILE_DOWNLINK_COOLDOWN, FILE_DOWNLINK_CYCLE_TIME,
                            FILE_DOWNLINK_FILE_QUEUE_DEPTH);
-{%- endif %}
+{%- endif -%}
 
-{% if cookiecutter.file_system_type == "MicroFS" %}
+{%- if cookiecutter.file_system_type == "MicroFS" %}
+
     // Parameter database is configured with a database file name, and that file must be initially read.
     prmDb.configure("/bin4/file1");
     prmDb.readParamFile();
 {%- elif cookiecutter.file_system_type == "SD_Card" %}
+
     // Parameter database is configured with a database file name, and that file must be initially read.
     prmDb.configure("prmDb.dat");
     prmDb.readParamFile();
-{%- endif %}
+{%- endif -%}
 }
 
 // Public functions for use in main program are namespaced with deployment name {{cookiecutter.deployment_name}}
@@ -95,7 +99,7 @@ void setupTopology(const TopologyState& state) {
     // Autocoded task kick-off (active components). Function provided by autocoder.
     startTasks(state);
 {% if cookiecutter.com_driver_type == "UART" %}
-    commDriver.configure(&Serial);
+    comDriver.configure(&Serial);
 {%- elif cookiecutter.com_driver_type == "TcpServer" %}
     Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", 50000);
     if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
