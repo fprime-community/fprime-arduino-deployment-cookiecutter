@@ -4,8 +4,8 @@
 //
 // ======================================================================
 // Used to access topology functions
-#include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
-#include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}Topology.hpp>
+#include <{{cookiecutter.__include_path_prefix}}{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
+#include <{{cookiecutter.__include_path_prefix}}{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}Topology.hpp>
 
 // Used for Baremetal TaskRunner
 #include <fprime-baremetal/Os/TaskRunner/TaskRunner.hpp>
@@ -35,12 +35,12 @@ void setup() {
 {%- endif %}
 
     // Object for communicating state to the reference topology
-    {{cookiecutter.deployment_name}}::TopologyState inputs;
+    {{cookiecutter.deployment_namespace}}::TopologyState inputs;
     inputs.uartNumber = 0;
     inputs.uartBaud = 115200;
 
     // Setup topology
-    {{cookiecutter.deployment_name}}::setupTopology(inputs);
+    {{cookiecutter.deployment_namespace}}::setupTopology(inputs);
 
     Fw::Logger::log("Program Started\n");
 }

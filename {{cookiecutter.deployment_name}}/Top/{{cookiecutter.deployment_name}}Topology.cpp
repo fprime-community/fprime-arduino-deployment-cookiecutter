@@ -4,9 +4,7 @@
 //
 // ======================================================================
 // Provides access to autocoded functions
-#include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
-// Note: Uncomment when using Svc:TlmPacketizer
-// #include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}PacketsAc.hpp>
+#include <{{cookiecutter.__include_path_prefix}}{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyAc.hpp>
 #include <config/FppConstantsAc.hpp>
 #include <Fw/Logger/Logger.hpp>
 
@@ -18,14 +16,28 @@
 {%- endif %}
 
 // Allows easy reference to objects in FPP/autocoder required namespaces
-using namespace {{cookiecutter.deployment_name}};
+using namespace {{cookiecutter.deployment_namespace}};
+{%- if cookiecutter.file_system_type == "MicroFS" %}
+
+// The MicroFs file system allocates its storage from a malloc-based allocator during the initialization phase.
+Fw::MallocAllocator mallocator;
+{%- endif %}
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+
+// A number of constants are needed for construction of the topology. These are specified here.
+{{"enum TopologyConstants {"}}
+    FILE_DOWNLINK_COOLDOWN = 1000,
+    FILE_DOWNLINK_CYCLE_TIME = 1000,
+    FILE_DOWNLINK_FILE_QUEUE_DEPTH = 10,
+{{"};"}}
+{%- endif %}
 
 // The reference topology divides the incoming clock signal (1Hz) into sub-signals: 1/100Hz, 1/200Hz, and 1/1000Hz
 {{"Svc::RateGroupDriver::DividerSet rateGroupDivisors{{{100, 0}, {200, 0}, {1000, 0}}};"}}
 
 // Rate groups may supply a context token to each of the attached children whose purpose is set by the project. The
 // reference topology sets each token to zero as these contexts are unused in this project.
-U32 rateGroup1Context[FppConstant_PassiveRateGroupOutputPorts::PassiveRateGroupOutputPorts] = {};
+Svc::PassiveRateGroup::ContextArray rateGroup1Context(0);
 
 /**
  * \brief configure/setup components in project-specific way
@@ -39,7 +51,7 @@ void configureTopology() {
     rateGroupDriver.configure(rateGroupDivisors);
 
     // Rate groups require context arrays.
-    rateGroup1.configure(rateGroup1Context, FW_NUM_ARRAY_ELEMENTS(rateGroup1Context));
+    rateGroup1.configure(rateGroup1Context);
 
 {%- if cookiecutter.file_system_type == "MicroFS" %}
 
@@ -57,8 +69,13 @@ void configureTopology() {
 {%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
 
     // File downlink requires some project-derived properties.
-    fileDownlink.configure(FILE_DOWNLINK_TIMEOUT, FILE_DOWNLINK_COOLDOWN, FILE_DOWNLINK_CYCLE_TIME,
-                           FILE_DOWNLINK_FILE_QUEUE_DEPTH);
+    fileDownlink.configure(FILE_DOWNLINK_COOLDOWN, FILE_DOWNLINK_CYCLE_TIME, FILE_DOWNLINK_FILE_QUEUE_DEPTH);
+
+    // File access sandboxes. Reads and writes outside them are rejected; "/" is unrestricted.
+    fileUplink.configure("/");
+    fileDownlink.configure("/");
+    fileManager.configure("/");
+    prmDb.configureSandbox("/");
 {%- endif -%}
 
 {%- if cookiecutter.file_system_type == "MicroFS" %}
@@ -74,8 +91,8 @@ void configureTopology() {
 {%- endif %}
 }
 
-// Public functions for use in main program are namespaced with deployment name {{cookiecutter.deployment_name}}
-namespace {{cookiecutter.deployment_name}} {
+// Public functions for use in main program are namespaced with deployment namespace {{cookiecutter.deployment_namespace}}
+namespace {{cookiecutter.deployment_namespace}} {
 void setupTopology(const TopologyState& state) {
     // Autocoded initialization. Function provided by autocoder.
     initComponents(state);
@@ -101,14 +118,14 @@ void setupTopology(const TopologyState& state) {
 {% if cookiecutter.com_driver_type == "UART" %}
     comDriver.configure(&Serial);
 {%- elif cookiecutter.com_driver_type == "TcpServer" %}
-    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", 50000);
+    Arduino::SocketIpStatus stat = comDriver.configure("SSID", "PASSWORD", 50000);
     if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
-        Fw::Logger::log("[commDriver] Failed to connect to network\n");
+        Fw::Logger::log("[comDriver] Failed to connect to network\n");
     }
 {%- elif cookiecutter.com_driver_type == "TcpClient" %}
-    Arduino::SocketIpStatus stat = commDriver.configure("SSID", "PASSWORD", "IP_ADDRESS", 50000);
+    Arduino::SocketIpStatus stat = comDriver.configure("SSID", "PASSWORD", "IP_ADDRESS", 50000);
     if (stat != Arduino::SocketIpStatus::SOCK_SUCCESS) {
-        Fw::Logger::log("[commDriver] Failed to connect to network\n");
+        Fw::Logger::log("[comDriver] Failed to connect to network\n");
     }
 {%- endif %}
     
@@ -121,4 +138,4 @@ void teardownTopology(const TopologyState& state) {
     stopTasks(state);
     freeThreads(state);
 }
-};  // namespace {{cookiecutter.deployment_name}}
+};  // namespace {{cookiecutter.deployment_namespace}}

@@ -1,4 +1,4 @@
-module {{cookiecutter.deployment_name}} {
+module {{cookiecutter.deployment_namespace}} {
 
   # ----------------------------------------------------------------------
   # Symbolic constants for port numbers
@@ -8,7 +8,7 @@ module {{cookiecutter.deployment_name}} {
       rateGroup1
     }
 
-  topology {{cookiecutter.deployment_name}} {
+  deployment topology {{cookiecutter.deployment_name}} {
 
     # ----------------------------------------------------------------------
     # Subtopology imports
@@ -73,8 +73,13 @@ module {{cookiecutter.deployment_name}} {
       rateGroup1.RateGroupMemberOut[0] -> tlmSend.Run
       rateGroup1.RateGroupMemberOut[1] -> systemResources.run
       rateGroup1.RateGroupMemberOut[2] -> comDriver.schedIn
+      rateGroup1.RateGroupMemberOut[3] -> cmdDisp.run
 {%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
-      rateGroup1.RateGroupMemberOut[3] -> fileDownlink.Run
+      rateGroup1.RateGroupMemberOut[4] -> fileDownlink.Run
+{%- endif %}
+{%- if cookiecutter.framing_selection == "CCSDS" %}
+      # Send partly filled TM frames instead of waiting for them to fill
+      rateGroup1.RateGroupMemberOut[{{ 5 if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] else 4 }}] -> ComCcsds.aggregator.timeout
 {%- endif %}
     }
 
@@ -103,6 +108,16 @@ module {{cookiecutter.deployment_name}} {
       # Router <-> CmdDispatcher
       ComCcsds.fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
       cmdDisp.seqCmdStatus     -> ComCcsds.fprimeRouter.cmdResponseIn
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+
+      # FileDownlink <-> ComQueue
+      fileDownlink.bufferSendOut -> ComCcsds.comQueue.bufferQueueIn[ComCcsds.Ports_ComBufferQueue.FILE]
+      ComCcsds.comQueue.bufferReturnOut[ComCcsds.Ports_ComBufferQueue.FILE] -> fileDownlink.bufferReturn
+
+      # Router <-> FileUplink
+      ComCcsds.fprimeRouter.fileOut     -> fileUplink.bufferSendIn
+      fileUplink.bufferSendOut -> ComCcsds.fprimeRouter.fileBufferReturnIn
+{%- endif %}
     }
 {%- else %}
     connections Communications {
@@ -125,6 +140,16 @@ module {{cookiecutter.deployment_name}} {
       # Router <-> CmdDispatcher
       ComFprime.fprimeRouter.commandOut  -> cmdDisp.seqCmdBuff
       cmdDisp.seqCmdStatus     -> ComFprime.fprimeRouter.cmdResponseIn
+{%- if cookiecutter.file_system_type in ["SD_Card", "MicroFS"] %}
+
+      # FileDownlink <-> ComQueue
+      fileDownlink.bufferSendOut -> ComFprime.comQueue.bufferQueueIn[ComFprime.Ports_ComBufferQueue.FILE]
+      ComFprime.comQueue.bufferReturnOut[ComFprime.Ports_ComBufferQueue.FILE] -> fileDownlink.bufferReturn
+
+      # Router <-> FileUplink
+      ComFprime.fprimeRouter.fileOut     -> fileUplink.bufferSendIn
+      fileUplink.bufferSendOut -> ComFprime.fprimeRouter.fileBufferReturnIn
+{%- endif %}
     }
 {%- endif %}
 

@@ -5,13 +5,13 @@
 // ======================================================================
 #ifndef {{cookiecutter.__deployment_name_upper}}_{{cookiecutter.__deployment_name_upper}}TOPOLOGY_HPP
 #define {{cookiecutter.__deployment_name_upper}}_{{cookiecutter.__deployment_name_upper}}TOPOLOGY_HPP
-// Included for access to {{cookiecutter.deployment_name}}::TopologyState and {{cookiecutter.deployment_name}}::ConfigObjects::pingEntries. These definitions are required by the
+// Included for access to {{cookiecutter.deployment_namespace}}::TopologyState and {{cookiecutter.deployment_namespace}}::ConfigObjects::pingEntries. These definitions are required by the
 // autocoder, but are also used in this hand-coded topology.
-#include <{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyDefs.hpp>
+#include <{{cookiecutter.__include_path_prefix}}{{cookiecutter.deployment_name}}/Top/{{cookiecutter.deployment_name}}TopologyDefs.hpp>
 
-// Remove unnecessary {{cookiecutter.deployment_name}}:: qualifications
-using namespace {{cookiecutter.deployment_name}};
-namespace {{cookiecutter.deployment_name}} {
+// Remove unnecessary {{cookiecutter.deployment_namespace}}:: qualifications
+using namespace {{cookiecutter.deployment_namespace}};
+namespace {{cookiecutter.deployment_namespace}} {
 /**
  * \brief initialize and run the F´ topology
  *
@@ -32,7 +32,7 @@ namespace {{cookiecutter.deployment_name}} {
  * custom tasks often start radio communication it is convenient to start them last.
  *
  * The state argument carries command line inputs used to setup the topology. For an explanation of the required type
- * {{cookiecutter.deployment_name}}::TopologyState see: {{cookiecutter.deployment_name}}TopologyDefs.hpp.
+ * {{cookiecutter.deployment_namespace}}::TopologyState see: {{cookiecutter.deployment_name}}TopologyDefs.hpp.
  *
  * \param state: object shuttling CLI arguments (hostname, port) needed to construct the topology
  */
@@ -53,11 +53,11 @@ void setupTopology(const TopologyState& state);
  * Step 1, 2, 3, and 4 must occur in-order as the tasks must be stopped before being joined. These tasks must be stopped
  * and joined before any active resources may be deallocated.
  *
- * For an explanation of the required type {{cookiecutter.deployment_name}}::TopologyState see: {{cookiecutter.deployment_name}}TopologyDefs.hpp.
+ * For an explanation of the required type {{cookiecutter.deployment_namespace}}::TopologyState see: {{cookiecutter.deployment_name}}TopologyDefs.hpp.
  *
  * \param state: state object provided to setupTopology
  */
 void teardownTopology(const TopologyState& state);
 
-} // namespace {{cookiecutter.deployment_name}}
+} // namespace {{cookiecutter.deployment_namespace}}
 #endif

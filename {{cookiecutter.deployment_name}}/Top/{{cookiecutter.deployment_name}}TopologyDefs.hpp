@@ -7,7 +7,8 @@
 #define {{cookiecutter.__deployment_name_upper}}_{{cookiecutter.__deployment_name_upper}}TOPOLOGYDEFS_HPP
 
 #include "Fw/Types/MallocAllocator.hpp"
-#include "{{cookiecutter.deployment_name}}/Top/FppConstantsAc.hpp"
+#include <cstring>
+#include "{{cookiecutter.__include_path_prefix}}{{cookiecutter.deployment_name}}/Top/FppConstantsAc.hpp"
 
 // SubtopologyTopologyDefs includes
 {%- if cookiecutter.framing_selection == "CCSDS" %}
@@ -46,19 +47,19 @@
  * ```
  */
 namespace PingEntries {
-    namespace {{cookiecutter.deployment_name}}_tlmSend      {enum { WARN = 3, FATAL = 5 };}
-    namespace {{cookiecutter.deployment_name}}_cmdDisp      {enum { WARN = 3, FATAL = 5 };}
-    namespace {{cookiecutter.deployment_name}}_eventLogger  {enum { WARN = 3, FATAL = 5 };}
-    namespace {{cookiecutter.deployment_name}}_rateGroup1   {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_namespace}}_tlmSend      {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_namespace}}_cmdDisp      {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_namespace}}_eventLogger  {enum { WARN = 3, FATAL = 5 };}
+    namespace {{cookiecutter.deployment_namespace}}_rateGroup1   {enum { WARN = 3, FATAL = 5 };}
 }  // namespace PingEntries
 
-// Definitions are placed within a namespace named after the deployment
-namespace {{cookiecutter.deployment_name}} {
+// Definitions are placed within the deployment namespace
+namespace {{cookiecutter.deployment_namespace}} {
 
     /**
      * \brief required type definition to carry state
      *
-     * The topology autocoder requires an object that carries state with the name `{{cookiecutter.deployment_name}}::TopologyState`. Only the type
+     * The topology autocoder requires an object that carries state with the name `{{cookiecutter.deployment_namespace}}::TopologyState`. Only the type
      * definition is required by the autocoder and the contents of this object are otherwise opaque to the autocoder. The
      * contents are entirely up to the definition of the project. This reference application specifies hostname and port
      * fields, which are derived by command line inputs.
@@ -68,7 +69,7 @@ namespace {{cookiecutter.deployment_name}} {
         PlatformIntType uartBaud;
     };
 
-}  // namespace {{cookiecutter.deployment_name}}
+}  // namespace {{cookiecutter.deployment_namespace}}
 
 
 

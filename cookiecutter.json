@@ -1,5 +1,6 @@
 {
     "deployment_name": "fprime_arduino_deployment",
+    "deployment_namespace": "{{cookiecutter.deployment_name}}",
     "com_driver_type": ["UART", "TcpServer", "TcpClient"],
     "file_system_type": ["None", "SD_Card", "MicroFS"],
     "framing_selection": ["CCSDS", "Fprime"],
@@ -7,6 +8,7 @@
     "__deployment_name_upper": "{{cookiecutter.deployment_name.upper()}}",
     "__prompts__": {
         "deployment_name": "Deployment name",
+        "deployment_namespace": "Deployment namespace",
         "com_driver_type": "Select communication driver type",
         "file_system_type": "Select file system type",
         "framing_selection": "Select framing protocol"
